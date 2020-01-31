@@ -10,13 +10,15 @@
 
 
 ## Functionalities
-- [ ]  < insert functionality >
-- [ ]  < insert functionality >
-- [ ]  < insert functionality >
-- [ ]  < insert functionality >
+User based
+- [ ]  Page to upload abstracts
+- [ ]  Link to the project
+Admin based
+- [ ]  Evaluation records of the teams + Review page + Details of teams
+- [ ]  Excel migration + abstracting 
+- [ ]  Integrating IBM watson to compare the abstracts releted to the problem statements
 
 <br>
-
 
 ## Instructions to run
 
@@ -39,7 +41,7 @@
 
 ## Contributors
 
-* [ < INSERT NAME HERE > ](INSERT_PROFILE_URL_HERE)
+* [ Pragati1610 ](Ihttps://github.com/Pragati1610/HackJudge-Backend )
 * [ < INSERT NAME HERE > ](INSERT_PROFILE_URL_HERE)
 
 
