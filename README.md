@@ -39,7 +39,7 @@
 
 ## Contributors
 
-* [ < INSERT NAME HERE > ](INSERT_PROFILE_URL_HERE)
+* [ < Pragati1610 > ](https://github.com/Pragati1610/HackJudge-Backend)
 * [ < INSERT NAME HERE > ](INSERT_PROFILE_URL_HERE)
 
 
