@@ -41,9 +41,8 @@ Admin based
 
 ## Contributors
 
-* [ Pragati1610 ](Ihttps://github.com/Pragati1610/HackJudge-Backend )
-* [ < INSERT NAME HERE > ](INSERT_PROFILE_URL_HERE)
 
+* [ Pragati1610 ](Ihttps://github.com/Pragati1610/HackJudge-Backend )
 
 
 <br>
