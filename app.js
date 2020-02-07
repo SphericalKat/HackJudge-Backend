@@ -5,6 +5,9 @@ const mongoose = require("mongoose");
 const bodyParser = require("body-parser");
 const cors = require("cors");
 const detailsRoutes = require("./api/routes/details");
+const adminRoutes = require("./api/routes/admin");
+const exportRoutes = require("./api/routes/export");
+
 
 mongoose.connect(
   "mongodb+srv://Pragati:" +
@@ -25,6 +28,8 @@ app.use(bodyParser.json());
 app.use(cors());
 
 app.use("/details", detailsRoutes);
+app.use("/admin", adminRoutes);
+app.use("/export", exportRoutes);
 
 
 module.exports = app;
