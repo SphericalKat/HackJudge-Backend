@@ -10,12 +10,9 @@ router.get("/", (req, res) => {
     .select("name email abstract _id")
     .exec()
     .then(docs => {
-      //console.log(docs);
-      //if (docs.length > 0){
       const response = {
         count: docs.length,
         details: docs.map(doc => {
-          //object spread operator?
           return {
             name: doc.name,
             email: doc.email,
@@ -61,9 +58,10 @@ router.post("/", (req, res) => {
   });
 });
 
-router.get("/:detailsId", (req, res, next) => {
+router.get("/:detailsId", (req, res) => {
   const id = req.params.detailsId;
   Details.findById(id)
+    .select("name email abstract _id")
     .exec()
     .then(doc => {
       console.log("From database", doc);
@@ -90,8 +88,13 @@ router.patch("/:detailsId", (req, res, next) => {
   Details.update({ _id: id }, { $set: updateOps })
     .exec()
     .then(result => {
-      console.log(result);
-      res.status(200).json(result);
+      res.status(200).json({
+        message: "Product updated",
+        request: {
+          type: "GET",
+          url: "http://localhost:8080/details/" + id
+        }
+      });
     })
     .catch(err => {
       console.log(err);
@@ -101,21 +104,26 @@ router.patch("/:detailsId", (req, res, next) => {
     });
 });
 
-router.delete("/:detailsId", (req, res, next) => {
+router.delete("/:detailsId", async (req, res) => {
   const id = req.params.detailsId;
-  Details.remove({ _id: id })
-    .exec()
-    .then(result => {
-      res.status(200).json({
-        result: "Document deleted successfully"
-      });
-    })
-    .catch(err => {
-      console.log(err);
-      res.status(500).json({
-        error: err
-      });
+  let result;
+  try {
+    result = await Details.remove({ _id: id }).exec();
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({
+      error: err
     });
+  }
+
+  res.status(200).json({
+    message: "Document deleted successfully",
+    request: {
+      type: "POST",
+      url: "http://localhost:8080/details",
+      body: { name: "String", email: "String", abstract: "String" }
+    }
+  });
 });
 
 module.exports = router;
