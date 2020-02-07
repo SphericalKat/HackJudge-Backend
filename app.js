@@ -10,9 +10,7 @@ const exportRoutes = require("./api/routes/export");
 
 
 mongoose.connect(
-  "mongodb+srv://Pragati:" +
-    process.env.MONGO_ATLAS_PW +
-    "@cluster0-imrhf.mongodb.net/test?retryWrites=true&w=majority",
+    process.env.MONGO_URL,
   {
     useNewUrlParser: true,
     useUnifiedTopology: true
