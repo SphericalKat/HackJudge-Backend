@@ -4,7 +4,7 @@ const mongoose = require("mongoose");
 const { Bcrypt } = require("bcrypt-rust-wasm");
 const jwt = require("jsonwebtoken");
 const { check, validationResult } = require("express-validator");
-
+const log = require("console-debug-log");
 const Admin = require("../models/admin");
 const bcrypt = Bcrypt.default();
 

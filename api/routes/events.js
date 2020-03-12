@@ -2,23 +2,23 @@ const express = require("express");
 const router = express.Router();
 const mongoose = require("mongoose");
 const log = require("console-debug-log");
-const Details = require("../models/details");
+const Events = require("../models/events");
 
 router.get("/", (req, res) => {
-  log.debug(req.headers.host);
-  Details.find()
-    .select("name email abstract _id link")
+  console.log(req.headers.host);
+  Events.find()
+    .select("problemStatements rounds metric name _id")
     .exec()
     .then(docs => {
       const response = {
         count: docs.length,
-        details: docs.map(doc => {
+        events: docs.map(doc => {
           return {
-            name: doc.name,
-            email: doc.email,
-            abstract: doc.abstract,
             _id: doc._id,
-            link: doc.link
+            name: doc.name,
+            problemStatements: doc.problemStatements,
+            rounds: doc.rounds,
+            metric: doc.metric
           };
         })
       };
@@ -26,7 +26,7 @@ router.get("/", (req, res) => {
         res.status(200).json(docs);
       } else {
         res.status(404).json({
-          message: "no entries found"
+          message: "no events found"
         });
       }
     })
@@ -38,36 +38,34 @@ router.get("/", (req, res) => {
 });
 
 router.post("/", (req, res) => {
-  log.debug(req.body);
-  const details = new Details({
+  console.log(req.body);
+  const events = new Events({
     _id: new mongoose.Types.ObjectId(),
     name: req.body.name,
-    email: req.body.email,
-    abstract: req.body.abstract,
-    link: req.body.link
+    eventDetails: req.body.eventDetails
   });
-  details.save().then(result => {
-    log.debug(result);
+  events.save().then(result => {
+    console.log(result);
     res.status(201).send({
-      message: "Create details successfully",
+      message: "Create event successfully",
       createdProduct: {
-        name: result.name,
-        email: result.email,
-        abstract: result.abstract,
-        link: result.link,
-        _id: result._id
+            _id: result._id,
+            name: result.name,
+            problemStatements: result.problemStatements,
+            rounds: result.rounds,
+            metric: result.metric
       }
     });
   });
 });
 
-router.get("/:detailsId", (req, res) => {
-  const id = req.params.detailsId;
-  Details.findById(id)
-    .select("name email abstract _id")
+router.get("/:eventsId", (req, res) => {
+  const id = req.params.eventsId;
+  Events.findById(id)
+    .select("problemStatements rounds metric name _id")
     .exec()
     .then(doc => {
-      log.debug("From database", doc);
+      console.log("From database", doc);
       if (doc) {
         res.status(200).json(doc);
       } else {
@@ -75,58 +73,59 @@ router.get("/:detailsId", (req, res) => {
       }
     })
     .catch(err => {
-      log.debug(err);
+      console.log(err);
       res.status(500).json({
         error: err
       });
     });
 });
 
-router.patch("/:detailsId", (req, res, next) => {
-  const id = req.params.detailsId;
+router.patch("/:eventsId", (req, res) => {
+  const id = req.params.eventsId;
   const updateOps = {};
   for (const ops of req.body) {
     updateOps[ops.propName] = ops.value;
   }
-  Details.update({ _id: id }, { $set: updateOps })
+  Events.update({ _id: id }, { $set: updateOps })
     .exec()
     .then(result => {
       res.status(200).json({
-        message: "Product updated",
+        message: "Event updated",
         request: {
           type: "GET",
-          url: "http://localhost:8080/details/" + id
+          url: "http://localhost:8080/events/" + id
         }
       });
     })
     .catch(err => {
-      log.debug(err);
+      console.log(err);
       res.status(500).json({
         error: err
       });
     });
 });
 
-router.delete("/:detailsId", async (req, res) => {
-  const id = req.params.detailsId;
+router.delete("/:eventsId", async (req, res) => {
+  const id = req.params.eventsId;
   let result;
   try {
-    result = await Details.remove({ _id: id }).exec();
+    result = await Events.remove({ _id: id }).exec();
   } catch (err) {
-    log.debug(err);
+    console.log(err);
     res.status(500).json({
       error: err
     });
   }
 
   res.status(200).json({
-    message: "Document deleted successfully",
+    message: "Event deleted successfully",
     request: {
       type: "POST",
-      url: "http://localhost:8080/details",
+      url: "http://localhost:8080/events",
       body: { name: "String", email: "String", abstract: "String" }
     }
   });
 });
 
 module.exports = router;
+

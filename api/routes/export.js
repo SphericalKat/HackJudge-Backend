@@ -4,6 +4,7 @@ const router = express.Router();
 const mongoose = require("mongoose");
 const { createObjectCsvWriter: createCsvWriter } = require("csv-writer");
 const Details = require("../models/details");
+const log = require("console-debug-log");
 
 const csvwriter = createCsvWriter({
   path: "results.csv",
