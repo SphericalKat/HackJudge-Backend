@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const mongoose = require("mongoose");
 const log = require("console-debug-log");
+const jwt = require("jsonwebtoken");
 const Details = require("../models/details");
 
 router.get("/", (req, res) => {

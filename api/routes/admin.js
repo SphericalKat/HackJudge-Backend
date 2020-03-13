@@ -74,8 +74,10 @@ router.post(
         }
         const result = bcrypt.verifySync(req.body.password, admin[0].password);
         if (result) {
+          const token = jwt.sign(req.body.email, process.env.JWT_PASS);
           return res.status(200).json({
-            message: "Auth successful"
+            message: "Auth successful",
+            token: token  
           });
         }
         res.status(401).json({
