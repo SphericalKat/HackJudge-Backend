@@ -10,7 +10,7 @@ const bcrypt = Bcrypt.default();
 
 router.post(
   "/signup",
-  [check("email").isEmail(), check("password").isLength({ min: 7 , max: 32})],
+  [check("email").isEmail(), check("password").isLength({ min: 7 , max: 32}), check("isAdmin").isBoolean()],
   (req, res) => {
     const error = validationResult(req);
     if (!error.isEmpty()) {
@@ -32,7 +32,8 @@ router.post(
           const admin = new Admin({
             _id: new mongoose.Types.ObjectId(),
             email: req.body.email,
-            password: hash
+            password: hash,
+            isAdmin: req.body.isAdmin
           });
           admin
             .save()
