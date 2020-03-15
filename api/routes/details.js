@@ -75,41 +75,44 @@ router.patch("/:detailsId", (req, res, next) => {
   const id = req.params.detailsId;
   Details.where({
     email: email
-  }).findOne().exec().then(result => {
-    isValid = result.email===email;
-    const updateOps = {};
-  if(!isValid){
-    return res.status(403).json({
-      message: "You are forbidden from modifying this resource"
-    });
-  }
-  for (const ops of Object.keys(req.body)) {
-    updateOps[ops] = req.body[ops];
-  }
-  Details.update({ _id: id }, { $set: updateOps })
+  })
+    .findOne()
     .exec()
     .then(result => {
-      res.status(200).json({
-        message: "Product updated",
-        request: {
-          type: "GET",
-          url: "http://localhost:8080/details/" + id
-        }
-      });
+      isValid = result.email === email;
+      const updateOps = {};
+      if (!isValid) {
+        return res.status(403).json({
+          message: "You are forbidden from modifying this resource"
+        });
+      }
+      for (const ops of Object.keys(req.body)) {
+        updateOps[ops] = req.body[ops];
+      }
+      Details.update({ _id: id }, { $set: updateOps })
+        .exec()
+        .then(result => {
+          res.status(200).json({
+            message: "Product updated",
+            request: {
+              type: "GET",
+              url: "http://localhost:8080/details/" + id
+            }
+          });
+        })
+        .catch(err => {
+          log.debug(err);
+          res.status(500).json({
+            error: err
+          });
+        });
     })
     .catch(err => {
-      log.debug(err);
-      res.status(500).json({
+      console.log(err);
+      return res.status(500).json({
         error: err
       });
     });
-  }).catch(err => {
-        console.log(err);
-        return res.status(500).json({
-          error: err
-        });
-  });
-  
 });
 
 router.delete("/:detailsId", async (req, res) => {

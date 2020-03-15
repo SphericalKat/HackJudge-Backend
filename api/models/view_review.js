@@ -1,9 +1,8 @@
-const mongoose = require('mongoose');
-const {EventsSchema:eventsSchema} = require('../models/events');
+const mongoose = require("mongoose");
 
 const viewReviewSchema = mongoose.Schema({
-    qualifiedTeams: {type: Number, required: true},
-    evaluatedTeams: {type: Number, required: true} 
+  qualifiedTeams: { type: Number, required: true },
+  evaluatedTeams: { type: Number, required: true }
 });
 
-module.exports = mongoose.model("V_R",viewReviewSchema);
+module.exports = mongoose.model("V_R", viewReviewSchema);

@@ -1,7 +1,6 @@
 const express = require("express");
 const router = express.Router();
 const mongoose = require("mongoose");
-const log = require("console-debug-log");
 const Events = require("../models/events");
 
 router.get("/", (req, res) => {
@@ -20,18 +19,6 @@ router.get("/", (req, res) => {
     .select("problemStatements rounds metric name _id")
     .exec()
     .then(docs => {
-      const response = {
-        count: docs.length,
-        events: docs.map(doc => {
-          return {
-            _id: doc._id,
-            name: doc.name,
-            problemStatements: doc.problemStatements,
-            rounds: doc.rounds,
-            metric: doc.metric
-          };
-        })
-      };
       if (docs) {
         res.status(200).json(docs);
       } else {
@@ -69,11 +56,11 @@ router.post("/", (req, res) => {
     res.status(201).send({
       message: "Create event successfully",
       createdProduct: {
-            _id: result._id,
-            name: result.name,
-            problemStatements: result.problemStatements,
-            rounds: result.rounds,
-            metric: result.metric
+        _id: result._id,
+        name: result.name,
+        problemStatements: result.problemStatements,
+        rounds: result.rounds,
+        metric: result.metric
       }
     });
   });
@@ -128,7 +115,7 @@ router.patch("/:eventsId", (req, res) => {
   }
   Events.update({ _id: id }, { $set: updateOps })
     .exec()
-    .then(result => {
+    .then(() => {
       res.status(200).json({
         message: "Event updated",
         request: {
@@ -178,4 +165,3 @@ router.delete("/:eventsId", async (req, res) => {
 });
 
 module.exports = router;
-

@@ -13,18 +13,17 @@ const viewReviewRoutes = require("./api/routes/view_review");
 const evaluateRoutes = require("./api/routes/evaluate");
 //const calculateRoutes = require("./api/routes/calculate");
 
-mongoose.connect(
-   process.env.MONGO_URL,
-  {
-    useNewUrlParser: true,
-    useUnifiedTopology: true
-  }
-);
-mongoose.connection.once('open',()=>{
-  console.log(`Mongoose connection is open on`);
-}).on('error', (err) => {
-  console.log('Connection error');
+mongoose.connect(process.env.MONGO_URL, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true
 });
+mongoose.connection
+  .once("open", () => {
+    console.log("Connection to mongoDB established");
+  })
+  .on("error", err => {
+    console.log("Error connecting to mongoDB:", err);
+  });
 
 //mongoose.Promise = global.Promise;
 

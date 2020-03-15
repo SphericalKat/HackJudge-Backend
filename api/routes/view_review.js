@@ -1,7 +1,5 @@
 const express = require("express");
 const router = express.Router();
-const mongoose = require("mongoose");
-const log = require("console-debug-log");
 const V_R = require("../models/view_review");
 
 router.get("/", (req, res) => {
@@ -20,20 +18,6 @@ router.get("/", (req, res) => {
     .select("abstract link analysis review addComments metrics")
     .exec()
     .then(docs => {
-      const response = {
-        count: docs.length,
-        details: docs.map(doc => {
-          return {
-            link: doc.link,
-            analysis: doc.analysis,
-            review: doc.review,
-            addComments: doc.addComments,
-            metrics: doc.metrics,
-            abstract: doc.abstract,
-            _id: doc._id
-          };
-        })
-      };
       if (docs) {
         res.status(200).json(docs);
       } else {
