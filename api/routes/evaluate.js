@@ -6,6 +6,16 @@ const Evaluate = require("../models/evaluate");
 
 router.post("/", (req, res) => {
   log.debug(req.body);
+  const token = req.header("Authorization");
+  let email;
+  try {
+    email = jwt.verify(token, process.env.JWT_PASS);
+  } catch (err) {
+    console.log(err);
+    return res.status(403).json({
+      message: err
+    });
+  }
   const details = new Evaluate({
     _id: new mongoose.Types.ObjectId(),
     abstract: req.body.abstract,
@@ -35,6 +45,16 @@ router.post("/", (req, res) => {
 
 router.patch("/:evaluateId", (req, res, next) => {
   const id = req.params.detailsId;
+  const token = req.header("Authorization");
+  let email;
+  try {
+    email = jwt.verify(token, process.env.JWT_PASS);
+  } catch (err) {
+    console.log(err);
+    return res.status(403).json({
+      message: err
+    });
+  }
   const updateOps = {};
   for (const ops of req.body) {
     updateOps[ops.propName] = ops.value;

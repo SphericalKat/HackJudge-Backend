@@ -6,6 +6,16 @@ const Events = require("../models/events");
 
 router.get("/", (req, res) => {
   console.log(req.headers.host);
+  const token = req.header("Authorization");
+  let email;
+  try {
+    email = jwt.verify(token, process.env.JWT_PASS);
+  } catch (err) {
+    console.log(err);
+    return res.status(403).json({
+      message: err
+    });
+  }
   Events.find()
     .select("problemStatements rounds metric name _id")
     .exec()
@@ -39,6 +49,16 @@ router.get("/", (req, res) => {
 
 router.post("/", (req, res) => {
   console.log(req.body);
+  const token = req.header("Authorization");
+  let email;
+  try {
+    email = jwt.verify(token, process.env.JWT_PASS);
+  } catch (err) {
+    console.log(err);
+    return res.status(403).json({
+      message: err
+    });
+  }
   const events = new Events({
     _id: new mongoose.Types.ObjectId(),
     name: req.body.name,
@@ -60,6 +80,16 @@ router.post("/", (req, res) => {
 });
 
 router.get("/:eventsId", (req, res) => {
+  const token = req.header("Authorization");
+  let email;
+  try {
+    email = jwt.verify(token, process.env.JWT_PASS);
+  } catch (err) {
+    console.log(err);
+    return res.status(403).json({
+      message: err
+    });
+  }
   const id = req.params.eventsId;
   Events.findById(id)
     .select("problemStatements rounds metric name _id")
@@ -81,6 +111,16 @@ router.get("/:eventsId", (req, res) => {
 });
 
 router.patch("/:eventsId", (req, res) => {
+  const token = req.header("Authorization");
+  let email;
+  try {
+    email = jwt.verify(token, process.env.JWT_PASS);
+  } catch (err) {
+    console.log(err);
+    return res.status(403).json({
+      message: err
+    });
+  }
   const id = req.params.eventsId;
   const updateOps = {};
   for (const ops of req.body) {
@@ -106,6 +146,16 @@ router.patch("/:eventsId", (req, res) => {
 });
 
 router.delete("/:eventsId", async (req, res) => {
+  const token = req.header("Authorization");
+  let email;
+  try {
+    email = jwt.verify(token, process.env.JWT_PASS);
+  } catch (err) {
+    console.log(err);
+    return res.status(403).json({
+      message: err
+    });
+  }
   const id = req.params.eventsId;
   let result;
   try {

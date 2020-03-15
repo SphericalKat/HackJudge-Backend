@@ -5,41 +5,18 @@ const log = require("console-debug-log");
 const jwt = require("jsonwebtoken");
 const Details = require("../models/details");
 
-router.get("/", (req, res) => {
-  log.debug(req.headers.host);
-  Details.find()
-    .select("name email abstract _id link")
-    .exec()
-    .then(docs => {
-      const response = {
-        count: docs.length,
-        details: docs.map(doc => {
-          return {
-            name: doc.name,
-            email: doc.email,
-            abstract: doc.abstract,
-            _id: doc._id,
-            link: doc.link
-          };
-        })
-      };
-      if (docs) {
-        res.status(200).json(docs);
-      } else {
-        res.status(404).json({
-          message: "no entries found"
-        });
-      }
-    })
-    .catch(err => {
-      res.status(500).json({
-        error: err
-      });
-    });
-});
-
 router.post("/", (req, res) => {
   log.debug(req.body);
+  const token = req.header("Authorization");
+  let email;
+  try {
+    email = jwt.verify(token, process.env.JWT_PASS);
+  } catch (err) {
+    console.log(err);
+    return res.status(403).json({
+      message: err
+    });
+  }
   const details = new Details({
     _id: new mongoose.Types.ObjectId(),
     name: req.body.name,
@@ -84,10 +61,30 @@ router.get("/:detailsId", (req, res) => {
 });
 
 router.patch("/:detailsId", (req, res, next) => {
+  const token = req.header("Authorization");
+  let isValid = false;
+  let email;
+  try {
+    email = jwt.verify(token, process.env.JWT_PASS);
+  } catch (err) {
+    console.log(err);
+    return res.status(403).json({
+      message: err
+    });
+  }
   const id = req.params.detailsId;
-  const updateOps = {};
-  for (const ops of req.body) {
-    updateOps[ops.propName] = ops.value;
+  Details.where({
+    email: email
+  }).findOne().exec().then(result => {
+    isValid = result.email===email;
+    const updateOps = {};
+  if(!isValid){
+    return res.status(403).json({
+      message: "You are forbidden from modifying this resource"
+    });
+  }
+  for (const ops of Object.keys(req.body)) {
+    updateOps[ops] = req.body[ops];
   }
   Details.update({ _id: id }, { $set: updateOps })
     .exec()
@@ -106,6 +103,13 @@ router.patch("/:detailsId", (req, res, next) => {
         error: err
       });
     });
+  }).catch(err => {
+        console.log(err);
+        return res.status(500).json({
+          error: err
+        });
+  });
+  
 });
 
 router.delete("/:detailsId", async (req, res) => {

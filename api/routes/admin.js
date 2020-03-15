@@ -40,7 +40,7 @@ router.post(
             .then(result => {
               console.log(result);
               res.status(201).json({
-                message: "Admin created",
+                message: "User created",
                 token: token
               });
             })

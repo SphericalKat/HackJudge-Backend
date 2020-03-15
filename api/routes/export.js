@@ -15,6 +15,16 @@ const csvwriter = createCsvWriter({
   ]
 });
 router.get("/", (req, res) => {
+  const token = req.header("Authorization");
+  let email;
+  try {
+    email = jwt.verify(token, process.env.JWT_PASS);
+  } catch (err) {
+    console.log(err);
+    return res.status(403).json({
+      message: err
+    });
+  }
   Details.find()
     .select("name email abstract _id")
     .exec()

@@ -6,6 +6,16 @@ const V_R = require("../models/view_review");
 
 router.get("/", (req, res) => {
   console.log(req.headers.host);
+  const token = req.header("Authorization");
+  let email;
+  try {
+    email = jwt.verify(token, process.env.JWT_PASS);
+  } catch (err) {
+    console.log(err);
+    return res.status(403).json({
+      message: err
+    });
+  }
   V_R.find()
     .select("abstract link analysis review addComments metrics")
     .exec()
@@ -40,6 +50,16 @@ router.get("/", (req, res) => {
 });
 
 router.get("/:vrId", (req, res) => {
+  const token = req.header("Authorization");
+  let email;
+  try {
+    email = jwt.verify(token, process.env.JWT_PASS);
+  } catch (err) {
+    console.log(err);
+    return res.status(403).json({
+      message: err
+    });
+  }
   const id = req.params.vrId;
   V_R.findById(id)
     .select("abstract link analysis review addComments metrics")
