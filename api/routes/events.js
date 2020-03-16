@@ -1,10 +1,20 @@
 const express = require("express");
 const router = express.Router();
 const mongoose = require("mongoose");
+const { check, validationResult } = require("express-validator");
+const log = require("console-debug-log");
 const Events = require("../models/events");
 
-router.get("/", (req, res) => {
-  console.log(req.headers.host);
+router.get("/", [check("Authorization")], (req, res) => {
+  // handle validation
+  const error = validationResult(req);
+  if (!error.isEmpty()) {
+    return res.status(422).json({
+      error: error.array()
+    });
+  }
+
+  // validate jwt
   const token = req.header("Authorization");
   let email;
   try {
@@ -15,6 +25,8 @@ router.get("/", (req, res) => {
       message: err
     });
   }
+
+  // jwt verified, find event by ID
   Events.find()
     .select("problemStatements rounds metric name _id")
     .exec()
@@ -34,8 +46,17 @@ router.get("/", (req, res) => {
     });
 });
 
-router.post("/", (req, res) => {
-  console.log(req.body);
+router.post("/", [check("Authorization")], (req, res) => {
+  log.debug(req.body);
+  // handle validation
+  const error = validationResult(req);
+  if (!error.isEmpty()) {
+    return res.status(422).json({
+      error: error.array()
+    });
+  }
+
+  // verify jwt
   const token = req.header("Authorization");
   let email;
   try {
@@ -46,6 +67,8 @@ router.post("/", (req, res) => {
       message: err
     });
   }
+
+  // jet verified, save events
   const events = new Events({
     _id: new mongoose.Types.ObjectId(),
     name: req.body.name,
@@ -66,7 +89,16 @@ router.post("/", (req, res) => {
   });
 });
 
-router.get("/:eventsId", (req, res) => {
+router.get("/:eventsId", [check("Authorization")], (req, res) => {
+  // handle validation
+  const error = validationResult(req);
+  if (!error.isEmpty()) {
+    return res.status(422).json({
+      error: error.array()
+    });
+  }
+
+  // verify jwt
   const token = req.header("Authorization");
   let email;
   try {
@@ -77,6 +109,8 @@ router.get("/:eventsId", (req, res) => {
       message: err
     });
   }
+
+  // jwt verified, find event by ID
   const id = req.params.eventsId;
   Events.findById(id)
     .select("problemStatements rounds metric name _id")
@@ -97,7 +131,16 @@ router.get("/:eventsId", (req, res) => {
     });
 });
 
-router.patch("/:eventsId", (req, res) => {
+router.patch("/:eventsId", [check("Authorization")], (req, res) => {
+  // handle validation
+  const error = validationResult(req);
+  if (!error.isEmpty()) {
+    return res.status(422).json({
+      error: error.array()
+    });
+  }
+
+  // verify jwt
   const token = req.header("Authorization");
   let email;
   try {
@@ -108,11 +151,15 @@ router.patch("/:eventsId", (req, res) => {
       message: err
     });
   }
+
+  // jwt verified, find fields to update
   const id = req.params.eventsId;
   const updateOps = {};
   for (const ops of req.body) {
     updateOps[ops.propName] = ops.value;
   }
+
+  // update fields
   Events.update({ _id: id }, { $set: updateOps })
     .exec()
     .then(() => {
@@ -132,7 +179,16 @@ router.patch("/:eventsId", (req, res) => {
     });
 });
 
-router.delete("/:eventsId", async (req, res) => {
+router.delete("/:eventsId", [check("Authorization")], async (req, res) => {
+  // handle validation
+  const error = validationResult(req);
+  if (!error.isEmpty()) {
+    return res.status(422).json({
+      error: error.array()
+    });
+  }
+
+  // verify jwt
   const token = req.header("Authorization");
   let email;
   try {
@@ -143,6 +199,8 @@ router.delete("/:eventsId", async (req, res) => {
       message: err
     });
   }
+
+  // jwt verified, delete event
   const id = req.params.eventsId;
   let result;
   try {

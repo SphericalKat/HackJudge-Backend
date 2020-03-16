@@ -1,50 +1,83 @@
 const express = require("express");
 const router = express.Router();
 const mongoose = require("mongoose");
+const { check, validationResult } = require("express-validator");
 const log = require("console-debug-log");
 const Evaluate = require("../models/evaluate");
 
-router.post("/", (req, res) => {
-  log.debug(req.body);
-  const token = req.header("Authorization");
-  let email;
-  try {
-    email = jwt.verify(token, process.env.JWT_PASS);
-  } catch (err) {
-    console.log(err);
-    return res.status(403).json({
-      message: err
+router.post(
+  "/",
+  [
+    check("Authorization"),
+    check("abstract"),
+    check("link"),
+    check("analysis"),
+    check("review"),
+    check("addComments"),
+    check("metrics")
+  ],
+  (req, res) => {
+    log.debug(req.body);
+    // handle validation
+    const error = validationResult(req);
+    if (!error.isEmpty()) {
+      return res.status(422).json({
+        error: error.array()
+      });
+    }
+
+    // validate jwt
+    const token = req.header("Authorization");
+    let email;
+    try {
+      email = jwt.verify(token, process.env.JWT_PASS);
+    } catch (err) {
+      console.log(err);
+      return res.status(403).json({
+        message: err
+      });
+    }
+
+    // jwt verified, save evaluation object
+    const details = new Evaluate({
+      _id: new mongoose.Types.ObjectId(),
+      abstract: req.body.abstract,
+      link: req.body.link,
+      analysis: req.body.analysis,
+      review: req.body.review,
+      addComments: req.body.addComments,
+      metrics: req.body.metrics
+    });
+
+    details.save().then(result => {
+      log.debug(result);
+      res.status(201).send({
+        message: "Create details successfully",
+        createdProduct: {
+          abstract: result.abstract,
+          link: result.link,
+          analysis: result.analysis,
+          review: result.review,
+          addComments: result.addComments,
+          metrics: result.metrics,
+          _id: result._id
+        }
+      });
     });
   }
-  const details = new Evaluate({
-    _id: new mongoose.Types.ObjectId(),
-    abstract: req.body.abstract,
-    link: req.body.link,
-    analysis: req.body.analysis,
-    review: req.body.review,
-    addComments: req.body.addComments,
-    metrics: req.body.metrics
-  });
+);
 
-  details.save().then(result => {
-    log.debug(result);
-    res.status(201).send({
-      message: "Create details successfully",
-      createdProduct: {
-        abstract: result.abstract,
-        link: result.link,
-        analysis: result.analysis,
-        review: result.review,
-        addComments: result.addComments,
-        metrics: result.metrics,
-        _id: result._id
-      }
-    });
-  });
-});
-
-router.patch("/:evaluateId", (req, res, next) => {
+router.patch("/:evaluateId", [check("Authorization")], (req, res) => {
   const id = req.params.detailsId;
+  // handle validation
+  const error = validationResult(req);
+  if (!error.isEmpty()) {
+    return res.status(422).json({
+      error: error.array()
+    });
+  }
+
+  // verify jwt
   const token = req.header("Authorization");
   let email;
   try {
@@ -55,6 +88,8 @@ router.patch("/:evaluateId", (req, res, next) => {
       message: err
     });
   }
+
+  // check fields for update
   const updateOps = {};
   for (const ops of req.body) {
     updateOps[ops.propName] = ops.value;

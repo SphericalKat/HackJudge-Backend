@@ -2,46 +2,76 @@ const express = require("express");
 const router = express.Router();
 const mongoose = require("mongoose");
 const log = require("console-debug-log");
+const { check, validationResult } = require("express-validator");
 const jwt = require("jsonwebtoken");
 const Details = require("../models/details");
 
-router.post("/", (req, res) => {
-  log.debug(req.body);
-  const token = req.header("Authorization");
-  let email;
-  try {
-    email = jwt.verify(token, process.env.JWT_PASS);
-  } catch (err) {
-    console.log(err);
-    return res.status(403).json({
-      message: err
+router.post(
+  "/",
+  [
+    check("name"),
+    check("email"),
+    check("abstract"),
+    check("link"),
+    check("Authorization")
+  ],
+  (req, res) => {
+    log.debug(req.body);
+    // handle validation
+    const error = validationResult(req);
+    if (!error.isEmpty()) {
+      return res.status(422).json({
+        error: error.array()
+      });
+    }
+
+    // verify jwt
+    const token = req.header("Authorization");
+    let email;
+    try {
+      email = jwt.verify(token, process.env.JWT_PASS);
+    } catch (err) {
+      console.log(err);
+      return res.status(403).json({
+        message: err
+      });
+    }
+
+    // token verified, save details
+    const details = new Details({
+      _id: new mongoose.Types.ObjectId(),
+      name: req.body.name,
+      email: req.body.email,
+      abstract: req.body.abstract,
+      link: req.body.link
+    });
+    details.save().then(result => {
+      log.debug(result);
+      res.status(201).send({
+        message: "Create details successfully",
+        createdProduct: {
+          name: result.name,
+          email: result.email,
+          abstract: result.abstract,
+          link: result.link,
+          _id: result._id
+        }
+      });
     });
   }
-  const details = new Details({
-    _id: new mongoose.Types.ObjectId(),
-    name: req.body.name,
-    email: req.body.email,
-    abstract: req.body.abstract,
-    link: req.body.link
-  });
-  details.save().then(result => {
-    log.debug(result);
-    res.status(201).send({
-      message: "Create details successfully",
-      createdProduct: {
-        name: result.name,
-        email: result.email,
-        abstract: result.abstract,
-        link: result.link,
-        _id: result._id
-      }
-    });
-  });
-});
+);
 
-router.get("/:detailsId", (req, res) => {
-  const id = req.params.detailsId;
-  Details.findById(id)
+router.get("/:detailsId", [check("Authorization")], (req, res) => {
+  // handle validation
+  const error = validationResult(req);
+  if (!error.isEmpty()) {
+    return res.status(422).json({
+      error: error.array()
+    });
+  }
+
+  // find details by mongo ID
+  Details.findById(req.params.detailsId)
     .select("name email abstract _id")
     .exec()
     .then(doc => {
@@ -60,7 +90,16 @@ router.get("/:detailsId", (req, res) => {
     });
 });
 
-router.patch("/:detailsId", (req, res, next) => {
+router.patch("/:detailsId", [check("Authorization")], (req, res) => {
+  // handle validation
+  const error = validationResult(req);
+  if (!error.isEmpty()) {
+    return res.status(422).json({
+      error: error.array()
+    });
+  }
+
+  // validate jwt
   const token = req.header("Authorization");
   let isValid = false;
   let email;
