@@ -69,7 +69,7 @@ router.post(
 );
 
 router.patch("/:evaluateId", [check("Authorization")], (req, res) => {
-  const id = req.params.detailsId;
+  const id = req.params.evaluateId;
   // handle validation
   const error = validationResult(req);
   if (!error.isEmpty()) {
@@ -92,8 +92,8 @@ router.patch("/:evaluateId", [check("Authorization")], (req, res) => {
 
   // check fields for update
   const updateOps = {};
-  for (const ops of req.body) {
-    updateOps[ops.propName] = ops.value;
+  for (const ops of Object.keys(req.body)) {
+    updateOps[ops] = req.body[ops];
   }
   Evaluate.update({ _id: id }, { $set: updateOps })
     .exec()
