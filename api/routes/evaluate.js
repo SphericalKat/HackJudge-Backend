@@ -114,4 +114,42 @@ router.patch("/:evaluateId", [check("Authorization")], (req, res) => {
     });
 });
 
+router.get("/:evaluateId", [check("Authorization")], async (req, res) => {
+  const id = req.params.evaluateId;
+  // handle validation
+  const error = validationResult(req);
+  if (!error.isEmpty()) {
+    return res.status(422).json({
+      error: error.array()
+    });
+  }
+
+  // verify jwt
+  const token = req.header("Authorization");
+  let email;
+  try {
+    email = jwt.verify(token, process.env.JWT_PASS);
+  } catch (err) {
+    console.log(err);
+    return res.status(403).json({
+      message: err
+    });
+  }
+
+  // find doc
+  try {
+    const doc = await Evaluate.findById(id).exec();
+    if (doc) {
+      return res.status(200).json(doc);
+    } else {
+      return res.status(404).json({ message: "No valid ID" });
+    }
+  } catch (err) {
+    console.log(err);
+    return res.status(500).json({
+      error: err
+    });
+  }
+});
+
 module.exports = router;
