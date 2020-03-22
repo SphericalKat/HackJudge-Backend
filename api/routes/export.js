@@ -1,10 +1,8 @@
 const fs = require("fs");
 const express = require("express");
 const router = express.Router();
-const mongoose = require("mongoose");
 const { createObjectCsvWriter: createCsvWriter } = require("csv-writer");
 const Details = require("../models/details");
-const log = require("console-debug-log");
 
 const csvwriter = createCsvWriter({
   path: "results.csv",
@@ -29,17 +27,6 @@ router.get("/", (req, res) => {
     .select("name email abstract _id")
     .exec()
     .then(async docs => {
-      const response = {
-        count: docs.length,
-        details: docs.map(doc => {
-          return {
-            name: doc.name,
-            email: doc.email,
-            abstract: doc.abstract,
-            _id: doc._id
-          };
-        })
-      };
       if (docs) {
         try {
           await csvwriter.writeRecords(docs);
