@@ -3,6 +3,7 @@ const router = express.Router();
 const mongoose = require("mongoose");
 const { check, validationResult } = require("express-validator");
 const log = require("console-debug-log");
+const jwt = require("jsonwebtoken");
 const Events = require("../models/events");
 
 router.get("/", [check("Authorization")], (req, res) => {
@@ -72,7 +73,9 @@ router.post("/", [check("Authorization")], (req, res) => {
   const events = new Events({
     _id: new mongoose.Types.ObjectId(),
     name: req.body.name,
-    eventDetails: req.body.eventDetails
+    problemStatements: req.body.problemStatements,
+    rounds: req.body.rounds,
+    metric: req.body.metric
   });
   events.save().then(result => {
     console.log(result);
@@ -81,6 +84,7 @@ router.post("/", [check("Authorization")], (req, res) => {
       createdProduct: {
         _id: result._id,
         name: result.name,
+        url: result.url,
         problemStatements: result.problemStatements,
         rounds: result.rounds,
         metric: result.metric
@@ -142,6 +146,7 @@ router.patch("/:eventsId", [check("Authorization")], (req, res) => {
 
   // verify jwt
   const token = req.header("Authorization");
+  let isValid = false;
   let email;
   try {
     email = jwt.verify(token, process.env.JWT_PASS);
@@ -151,14 +156,23 @@ router.patch("/:eventsId", [check("Authorization")], (req, res) => {
       message: err
     });
   }
-
-  // jwt verified, find fields to update
   const id = req.params.eventsId;
-  const updateOps = {};
-  for (const ops of req.body) {
-    updateOps[ops.propName] = ops.value;
-  }
-
+  Events.where({
+    email: email
+  })
+  .findOne()
+  .exec()
+  .then(result => {
+      isValid = result.email === email;
+      const updateOps = {};
+      if (!isValid) {
+        return res.status(403).json({
+          message: "You are forbidden from modifying this resource"
+        });
+      }
+      for (const ops of Object.keys(req.body)) {
+        updateOps[ops] = req.body[ops];
+      }
   // update fields
   Events.update({ _id: id }, { $set: updateOps })
     .exec()
@@ -177,6 +191,12 @@ router.patch("/:eventsId", [check("Authorization")], (req, res) => {
         error: err
       });
     });
+}).catch(err => {
+  console.log(err);
+  return res.status(500).json({
+    error: err
+  });
+  });
 });
 
 router.delete("/:eventsId", [check("Authorization")], async (req, res) => {

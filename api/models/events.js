@@ -6,6 +6,7 @@ const metricSchema = mongoose.Schema({
 const eventsSchema = mongoose.Schema({
   _id: mongoose.Schema.Types.ObjectId,
   name: { type: String, required: true },
+  
   metric: { type: [metricSchema], required: true },
   rounds: { type: Number, required: true },
   problemStatements: { type: [String], required: true }

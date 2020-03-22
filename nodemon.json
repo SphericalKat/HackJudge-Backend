@@ -1,0 +1,6 @@
+{
+    "env": {
+        "MONGO_URL": "mongodb+srv://pragati:Password@1@cluster0-4lfed.mongodb.net/test?retryWrites=true&w=majority",
+        "JWT_PASS": "supersecretpassword"
+    }
+}

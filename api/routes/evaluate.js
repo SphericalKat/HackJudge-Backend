@@ -3,6 +3,7 @@ const router = express.Router();
 const mongoose = require("mongoose");
 const { check, validationResult } = require("express-validator");
 const log = require("console-debug-log");
+const jwt = require("jsonwebtoken");
 const Evaluate = require("../models/evaluate");
 
 router.post(
